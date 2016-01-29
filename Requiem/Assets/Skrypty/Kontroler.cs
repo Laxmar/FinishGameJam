@@ -7,12 +7,38 @@ public class Kontroler : MonoBehaviour {
 
     Rigidbody2D rb2;
 
-    float speedConstant = 4f;
-    float jumpForce = 6f;
-    bool jump;
+    float jumpForce = 5f;
 
-    float maxSpeed = 10f;
-    float jumpTreshold = 0.5f;
+    bool jump;
+    bool canJump = true;
+    bool afterFirstJump = false;
+    bool jumpAfterContact = false;
+
+    float speedConstant = 1f;
+    float maxSpeed = 6f;
+
+    Vector2 contactVector = new Vector2(0,0);
+
+
+    void OnCollisionEnter2D(Collision2D collision)
+    {
+        foreach (ContactPoint2D contact in collision.contacts)
+        {
+
+            if(Mathf.Abs(contact.normal.x)> 0.5 && contactVector.x != contact.normal.x)
+                jumpAfterContact = false;
+
+            contactVector = contact.normal;
+
+            if (contact.normal.y == 1)
+            {
+                canJump = true;
+                afterFirstJump = false;
+                
+            }
+
+        }
+    }
 
     // Use this for initialization
     void Start () {
@@ -21,34 +47,58 @@ public class Kontroler : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-        if (Mathf.Abs(rb2.velocity.y) < jumpTreshold)
+
+        jump = false;
+
+        if (Input.GetButtonDown("Jump") || Input.GetButtonUp("Jump"))
         {
-            jump = Input.GetButtonDown("Jump");
+            jump = true;
         }
+ 
     }
 
     void FixedUpdate()
     {
 
         float move = Input.GetAxis("Horizontal");
-        Vector2 move_vector = new Vector2(0,0);
 
 
-        if (Mathf.Abs(rb2.velocity.x) < maxSpeed)
+        rb2.velocity = new Vector2(rb2.velocity.x + (move * speedConstant), rb2.velocity.y);
+
+        if (rb2.velocity.x > maxSpeed)
         {
-            if (jump)
-            {
-                move_vector = new Vector2(move * speedConstant, jumpForce);
-                jump = false;
-            }
-            else
-                move_vector = new Vector2(move * speedConstant, rb2.velocity.y);
+            rb2.velocity = new Vector2(maxSpeed, rb2.velocity.y);
+        }
+        else if (rb2.velocity.x < -maxSpeed)
+        {
+            rb2.velocity = new Vector2(-maxSpeed, rb2.velocity.y);
         }
 
-        rb2.velocity = move_vector;
-        
+            jumpAction();
+
     }
 
+    void jumpAction()
+    {
 
+        if (afterFirstJump && Mathf.Abs(contactVector.x) > 0.5 && !jumpAfterContact && jump)
+        {
+            rb2.velocity = new Vector2(jumpForce * contactVector.x, rb2.velocity.y + jumpForce);
+            jumpAfterContact = true;
+            return;
+        }
+
+
+        if (jump && canJump)
+        {
+            jump = false;
+            canJump = false;
+            
+            afterFirstJump = true;
+            rb2.velocity = new Vector2(rb2.velocity.x, rb2.velocity.y + jumpForce);
+
+        }
+    }
 }
+
 
