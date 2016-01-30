@@ -3,19 +3,21 @@ using System.Collections;
 using UnityStandardAssets._2D;
 using System;
 
+[RequireComponent(typeof(Rigidbody2D))]
 public class Kontroler : MonoBehaviour {
 
-    Rigidbody2D rb2;
 
-    float jumpForce = 5f;
+    public float jumpForce = 5f;
+    public float speedConstant = 1f;
 
     bool jump;
     bool canJump = true;
     bool afterFirstJump = false;
     bool jumpAfterContact = false;
 
-    float speedConstant = 1f;
     float maxSpeed = 6f;
+    Rigidbody2D rb2;
+
 
     Vector2 contactVector = new Vector2(0,0);
 
