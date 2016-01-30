@@ -9,13 +9,13 @@ public class Kontroler : MonoBehaviour {
 
     public float jumpForce = 5f;
     public float speedConstant = 1f;
+    public float maxSpeed = 6f;
 
     bool jump;
     bool canJump = true;
     bool afterFirstJump = false;
     bool jumpAfterContact = false;
 
-    float maxSpeed = 6f;
     Rigidbody2D rb2;
 
 
@@ -32,7 +32,7 @@ public class Kontroler : MonoBehaviour {
 
             contactVector = contact.normal;
 
-            if (contact.normal.y == 1)
+            if (contact.normal.y > 0.5)
             {
                 canJump = true;
                 afterFirstJump = false;
