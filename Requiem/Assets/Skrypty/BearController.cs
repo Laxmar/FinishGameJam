@@ -33,7 +33,7 @@ public class BearController : MonoBehaviour
             Flip();
         else if( move < 0 && _facingRight)
             Flip();
-
+        
 	}
 
     void Flip()
