@@ -10,7 +10,14 @@ public class Kontroler : MonoBehaviour {
     public float jumpForce = 5f;
     public float speedConstant = 1f;
     public float maxSpeed = 6f;
+	public Vector3 CheckpointPosition = new Vector3 (0, 0, 0);
 
+	public void CheckpointSet(Vector3 other)
+	{
+
+		CheckpointPosition = other;
+
+	}
     bool jump;
     bool canJump = true;
     bool afterFirstJump = false;
@@ -22,8 +29,11 @@ public class Kontroler : MonoBehaviour {
     Vector2 contactVector = new Vector2(0,0);
 
 
+
     void OnCollisionEnter2D(Collision2D collision)
     {
+
+
         foreach (ContactPoint2D contact in collision.contacts)
         {
 
@@ -38,8 +48,23 @@ public class Kontroler : MonoBehaviour {
                 afterFirstJump = false;
                 
             }
+				
+
 
         }
+
+
+		if (collision.gameObject.tag == "Checkpoint") {
+
+			CheckpointPosition = new Vector3 (collision.gameObject.transform.position.x, collision.gameObject.transform.position.y + 5, 0);
+		}
+
+		if (collision.gameObject.tag == "Enemy") {
+
+			rb2.transform.position = CheckpointPosition;
+		}
+
+
     }
 
     // Use this for initialization
