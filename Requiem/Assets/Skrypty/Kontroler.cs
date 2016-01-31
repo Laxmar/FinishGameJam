@@ -2,7 +2,6 @@
 using System.Collections;
 using UnityStandardAssets._2D;
 using System;
-using UnityEditor;
 
 [RequireComponent(typeof(Rigidbody2D))]
 public class Kontroler : MonoBehaviour {
