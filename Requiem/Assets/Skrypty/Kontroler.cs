@@ -42,7 +42,7 @@ public class Kontroler : MonoBehaviour {
 
         _jump = false;
 
-        if (Input.GetButtonDown("Jump") || Input.GetButtonUp("Jump"))
+        if (Input.GetButtonDown("Jump")  )// || Input.GetButtonUp("Jump"))
         { 
             _jump = true;
             _animator.SetTrigger("Jump");
