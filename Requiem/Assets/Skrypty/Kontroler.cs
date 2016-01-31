@@ -2,6 +2,7 @@
 using System.Collections;
 using UnityStandardAssets._2D;
 using System;
+using UnityEditor;
 
 [RequireComponent(typeof(Rigidbody2D))]
 public class Kontroler : MonoBehaviour {
@@ -37,21 +38,21 @@ public class Kontroler : MonoBehaviour {
 		{
 			isShowing = !isShowing;
 			Kanwas.gameObject.SetActive(isShowing);
-
 		}
 
         _jump = false;
 
         if (Input.GetButtonDown("Jump") || Input.GetButtonUp("Jump"))
-        {
+        { 
             _jump = true;
+            _animator.SetTrigger("Jump");
         }
     }
 
     void FixedUpdate()
     {
         float move = Input.GetAxis("Horizontal");
-        _animator.SetFloat("Speed", Mathf.Abs(move));
+        _animator.SetFloat("Speed", Mathf.Max( Mathf.Abs(move), _rigidbody2D.velocity.magnitude));
 
         _rigidbody2D.velocity = new Vector2(_rigidbody2D.velocity.x + (move * SpeedConstant), _rigidbody2D.velocity.y);
 
@@ -69,7 +70,7 @@ public class Kontroler : MonoBehaviour {
         else if (move < 0 && _facingRight)
             Flip();
 
-        JumpAction();
+       JumpAction();
     }
 
     void OnCollisionEnter2D(Collision2D collision)
@@ -107,6 +108,7 @@ public class Kontroler : MonoBehaviour {
         if (_jump && _canJump)
         {
             _jump = false;
+            
             _canJump = false;
             
             _afterFirstJump = true;
