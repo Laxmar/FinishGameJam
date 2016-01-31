@@ -7,124 +7,109 @@ using System;
 public class Kontroler : MonoBehaviour {
 
 
-    public float jumpForce = 5f;
-    public float speedConstant = 1f;
-    public float maxSpeed = 6f;
+    public float JumpForce = 5f;
+    public float SpeedConstant = 1f;
+    public float MaxSpeed = 6f;
+
 	public Vector3 CheckpointPosition = new Vector3 (0, 0, 0);
 
-	public void CheckpointSet(Vector3 other)
-	{
+    Rigidbody2D _rigidbody2D;
+    bool _jump;
+    bool _canJump = true;
+    bool _afterFirstJump = false;
+    bool _jumpAfterContact = false;
+    private bool _facingRight = true;
+    Vector2 _contactVector = new Vector2(0,0);
+    private Animator _animator;
 
-		CheckpointPosition = other;
-
-	}
-    bool jump;
-    bool canJump = true;
-    bool afterFirstJump = false;
-    bool jumpAfterContact = false;
-
-    Rigidbody2D rb2;
-
-
-    Vector2 contactVector = new Vector2(0,0);
-
-
-
-    void OnCollisionEnter2D(Collision2D collision)
+    void Start()
     {
-
-
-        foreach (ContactPoint2D contact in collision.contacts)
-        {
-
-            if(Mathf.Abs(contact.normal.x)> 0.5 && contactVector.x != contact.normal.x)
-                jumpAfterContact = false;
-
-            contactVector = contact.normal;
-
-            if (contact.normal.y > 0.5)
-            {
-                canJump = true;
-                afterFirstJump = false;
-                
-            }
-				
-
-
-        }
-
-
-		if (collision.gameObject.tag == "Checkpoint") {
-
-			CheckpointPosition = new Vector3 (collision.gameObject.transform.position.x, collision.gameObject.transform.position.y + 5, 0);
-		}
-
-		if (collision.gameObject.tag == "Enemy") {
-
-			rb2.transform.position = CheckpointPosition;
-		}
-
-
+        _rigidbody2D = GetComponent<Rigidbody2D>();
+        _animator = GetComponent<Animator>();
     }
 
-    // Use this for initialization
-    void Start () {
-        rb2 = GetComponent<Rigidbody2D>();
-    }
-	
-	// Update is called once per frame
-	void Update () {
-
-        jump = false;
+    void Update()
+    {
+        _jump = false;
 
         if (Input.GetButtonDown("Jump") || Input.GetButtonUp("Jump"))
         {
-            jump = true;
+            _jump = true;
         }
- 
     }
 
     void FixedUpdate()
     {
-
         float move = Input.GetAxis("Horizontal");
+        _animator.SetFloat("Speed", Mathf.Abs(move));
 
+        _rigidbody2D.velocity = new Vector2(_rigidbody2D.velocity.x + (move * SpeedConstant), _rigidbody2D.velocity.y);
 
-        rb2.velocity = new Vector2(rb2.velocity.x + (move * speedConstant), rb2.velocity.y);
-
-        if (rb2.velocity.x > maxSpeed)
+        if (_rigidbody2D.velocity.x > MaxSpeed)
         {
-            rb2.velocity = new Vector2(maxSpeed, rb2.velocity.y);
+            _rigidbody2D.velocity = new Vector2(MaxSpeed, _rigidbody2D.velocity.y);
         }
-        else if (rb2.velocity.x < -maxSpeed)
+        else if (_rigidbody2D.velocity.x < -MaxSpeed)
         {
-            rb2.velocity = new Vector2(-maxSpeed, rb2.velocity.y);
+            _rigidbody2D.velocity = new Vector2(-MaxSpeed, _rigidbody2D.velocity.y);
         }
 
-            jumpAction();
+        if (move > 0 && !_facingRight)
+            Flip();
+        else if (move < 0 && _facingRight)
+            Flip();
 
+        JumpAction();
     }
 
-    void jumpAction()
+    void OnCollisionEnter2D(Collision2D collision)
     {
-
-        if (afterFirstJump && Mathf.Abs(contactVector.x) > 0.5 && !jumpAfterContact && jump)
+        foreach (ContactPoint2D contact in collision.contacts)
         {
-            rb2.velocity = new Vector2(jumpForce * contactVector.x, rb2.velocity.y + jumpForce);
-            jumpAfterContact = true;
+            if(Mathf.Abs(contact.normal.x)> 0.5 && _contactVector.x != contact.normal.x)
+                _jumpAfterContact = false;
+
+            _contactVector = contact.normal;
+
+            if (contact.normal.y > 0.5)
+            {
+                _canJump = true;
+                _afterFirstJump = false;
+            }
+        }
+		if (collision.gameObject.tag == "Checkpoint") {
+			CheckpointPosition = new Vector3 (collision.gameObject.transform.position.x, collision.gameObject.transform.position.y + 5, 0);
+		}
+		if (collision.gameObject.tag == "Enemy") {
+			_rigidbody2D.transform.position = CheckpointPosition;
+		}
+    }
+
+    void JumpAction()
+    {
+        if (_afterFirstJump && Mathf.Abs(_contactVector.x) > 0.5 && !_jumpAfterContact && _jump)
+        {
+            _rigidbody2D.velocity = new Vector2(JumpForce * _contactVector.x, _rigidbody2D.velocity.y + JumpForce);
+            _jumpAfterContact = true;
             return;
         }
 
-
-        if (jump && canJump)
+        if (_jump && _canJump)
         {
-            jump = false;
-            canJump = false;
+            _jump = false;
+            _canJump = false;
             
-            afterFirstJump = true;
-            rb2.velocity = new Vector2(rb2.velocity.x, rb2.velocity.y + jumpForce);
-
+            _afterFirstJump = true;
+            _rigidbody2D.velocity = new Vector2(_rigidbody2D.velocity.x, _rigidbody2D.velocity.y + JumpForce);
         }
+    }
+
+    void Flip()
+    {
+        _facingRight = !_facingRight;
+        Vector3 theScale = transform.localScale;
+        theScale.x *= -1;
+        transform.localScale = theScale;
     }
 }
 
