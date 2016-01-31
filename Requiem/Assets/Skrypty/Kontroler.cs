@@ -10,6 +10,8 @@ public class Kontroler : MonoBehaviour {
     public float JumpForce = 5f;
     public float SpeedConstant = 1f;
     public float MaxSpeed = 6f;
+	public Canvas Kanwas;
+	public bool isShowing = false;
 
 	public Vector3 CheckpointPosition = new Vector3 (0, 0, 0);
 
@@ -26,10 +28,18 @@ public class Kontroler : MonoBehaviour {
     {
         _rigidbody2D = GetComponent<Rigidbody2D>();
         _animator = GetComponent<Animator>();
+		Kanwas.gameObject.SetActive (isShowing);
     }
 
     void Update()
     {
+		if(Input.GetKeyDown("escape"))
+		{
+			isShowing = !isShowing;
+			Kanwas.gameObject.SetActive(isShowing);
+
+		}
+
         _jump = false;
 
         if (Input.GetButtonDown("Jump") || Input.GetButtonUp("Jump"))
