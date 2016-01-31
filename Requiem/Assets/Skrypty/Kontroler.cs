@@ -94,6 +94,11 @@ public class Kontroler : MonoBehaviour {
 		if (collision.gameObject.tag == "Enemy") {
 			_rigidbody2D.transform.position = CheckpointPosition;
 		}
+
+        if (collision.gameObject.tag == "NextLevel")
+        {
+            Application.LoadLevel(2);
+        }
     }
 
     void JumpAction()
